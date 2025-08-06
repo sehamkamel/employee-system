@@ -4,31 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use App\Models\Department;
+use App\Models\JobTitle;
 
 class EmployeeController extends Controller
 {
-    // عرض كل الموظفين
-    public function index()
-    {
-        $employees = Employee::latest()->paginate(10);
-        return view('employees.index', compact('employees'));
-    }
+    // Display all employees
+   public function index()
+{
+    $employees = Employee::with(['department', 'jobTitle'])->paginate(10);
+    return view('employees.index', compact('employees'));
+}
 
-    // عرض صفحة إنشاء موظف جديد
+
+    // Show the form to create a new employee
     public function create()
     {
-        return view('employees.create');
+        $departments = Department::with('jobTitles')->get();
+        return view('employees.create', compact('departments'));
     }
 
-    // حفظ موظف جديد في قاعدة البيانات
+    // Store a new employee in the database
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees,email',
             'phone' => 'required|string|max:20',
-            'department' => 'required|string|max:100',
-            'job_title' => 'nullable|string|max:100',
+            'department_id' => 'required|exists:departments,id',
+            'job_title_id' => 'nullable|exists:job_titles,id',
             'hired_at' => 'nullable|date',
             'salary' => 'nullable|numeric',
             'address' => 'nullable|string|max:255',
@@ -40,27 +44,28 @@ class EmployeeController extends Controller
                          ->with('success', 'Employee created successfully.');
     }
 
-    // عرض تفاصيل موظف معين (لو حبيتِ تفعليه بعدين)
+    // Show details of a specific employee
     public function show(Employee $employee)
     {
         return view('employees.show', compact('employee'));
     }
 
-    // عرض صفحة التعديل
+    // Show the form to edit an existing employee
     public function edit(Employee $employee)
     {
-        return view('employees.edit', compact('employee'));
+        $departments = Department::with('jobTitles')->get();
+        return view('employees.edit', compact('employee', 'departments'));
     }
 
-    // تحديث بيانات موظف
+    // Update an existing employee
     public function update(Request $request, Employee $employee)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees,email,' . $employee->id,
             'phone' => 'required|string|max:20',
-            'department' => 'required|string|max:100',
-            'job_title' => 'nullable|string|max:100',
+            'department_id' => 'required|exists:departments,id',
+            'job_title_id' => 'nullable|exists:job_titles,id',
             'hired_at' => 'nullable|date',
             'salary' => 'nullable|numeric',
             'address' => 'nullable|string|max:255',
@@ -72,7 +77,7 @@ class EmployeeController extends Controller
                          ->with('success', 'Employee updated successfully.');
     }
 
-    // حذف موظف
+    // Delete an employee
     public function destroy(Employee $employee)
     {
         $employee->delete();
@@ -81,4 +86,3 @@ class EmployeeController extends Controller
                          ->with('success', 'Employee deleted successfully.');
     }
 }
-

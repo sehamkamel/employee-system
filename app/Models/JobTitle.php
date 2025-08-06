@@ -4,29 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-class Employee extends Model
+
+class JobTitle extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
-        'email',
-        'phone',
         'department_id',
-        'job_title_id',
-        'hired_at',
-        'salary',
-        'address',
     ];
 
+    /**
+     * علاقة كل مسمى وظيفي بقسم واحد
+     */
     public function department()
     {
         return $this->belongsTo(Department::class);
     }
-
-    public function jobTitle()
-    {
-        return $this->belongsTo(JobTitle::class);
-    }
-    
 }

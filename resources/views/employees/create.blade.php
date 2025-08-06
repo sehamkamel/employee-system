@@ -69,7 +69,34 @@
                 <div class="text-end">
                     <button type="submit" class="btn btn-success">Add Employee</button>
                 </div>
+         
+    </select>
+</div>
+    </select>
+</div>
+
             </form>
+<script>
+    const departments = @json($departments);
+
+    document.getElementById('department').addEventListener('change', function () {
+        const departmentId = this.value;
+        const jobTitleSelect = document.getElementById('job_title');
+        jobTitleSelect.innerHTML = '<option value="">-- Select Job Title --</option>';
+
+        if (departmentId) {
+            const selectedDept = departments.find(d => d.id == departmentId);
+            if (selectedDept && selectedDept.job_titles.length > 0) {
+                selectedDept.job_titles.forEach(title => {
+                    const option = document.createElement('option');
+                    option.value = title.id;
+                    option.textContent = title.name;
+                    jobTitleSelect.appendChild(option);
+                });
+            }
+        }
+    });
+</script>
 
         </div>
     </div>
