@@ -1,73 +1,77 @@
 @extends('layout')
 
 @section('content')
-    <div class="container mt-4">
-        <h1 class="mb-4">All Departments</h1>
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Departments</h2>
+    <a href="{{ route('departments.create') }}" class="btn btn-primary d-flex align-items-center gap-1">
+      <i class="bi bi-plus-lg"></i> Add Department
+    </a>
+  </div>
 
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
+  <div class="row g-4">
+    @forelse($departments as $d)
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title mb-2">{{ $d->name }}</h5>
+            <p class="card-text text-muted mb-3">{{ $d->description ?? '—' }}</p>
+
+            @php
+              // إذا القسم "Software Development"، نُظهر أول 3 مسميات فقط
+              $titles = $d->name === 'Software Development'
+                        ? $d->jobTitles->take(3)
+                        : $d->jobTitles;
+            @endphp
+
+            @if($titles->isNotEmpty())
+              <ul class="list-unstyled small mb-3 ps-3">
+                @foreach($titles as $j)
+                  <li class="mb-1">
+                    <strong>{{ $j->name }}</strong><br>
+                    <small class="text-muted">{{ $j->description }}</small>
+                  </li>
+                @endforeach
+                @if($d->name === 'Software Development' && $d->jobTitles->count() > 3)
+                  <li class="text-center">
+                    <small class="text-primary">...and {{ $d->jobTitles->count() - 3 }} more</small>
+                  </li>
+                @endif
+              </ul>
+            @else
+              <p class="text-muted small mb-3">No job titles</p>
+            @endif
+
+            <div class="mt-auto d-flex justify-content-between">
+              <a href="{{ route('departments.edit', $d->id) }}"
+                 class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+                <i class="bi bi-pencil"></i> Edit
+              </a>
+              <form action="{{ route('departments.destroy', $d->id) }}" method="POST"
+                    onsubmit="return confirm('Are you sure you want to delete this department?')"
+                    class="m-0 p-0">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
+                  <i class="bi bi-trash"></i> Delete
+                </button>
+              </form>
             </div>
-        @endif
 
-        <a href="{{ route('departments.create') }}" class="btn btn-success mb-3">
-            <i class="bi bi-plus-circle"></i> Add Department
-        </a>
-
-        <table class="table table-bordered align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Department Name</th>
-                    <th>Description</th>
-                    <th>Job Titles</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @forelse ($departments as $department)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $department->name }}</td>
-                        <td>{{ $department->description ?? '—' }}</td>
-                        <td>
-                            @if ($department->jobTitles && $department->jobTitles->count())
-                                <ul class="list-unstyled mb-0">
-                                    @foreach ($department->jobTitles as $jobTitle)
-                                        <li class="mb-2">
-                                            <strong>{{ $jobTitle->name }}</strong><br>
-                                            <span class="text-muted" style="font-size: 0.875rem;">
-                                                {{ $jobTitle->description ?? 'No description available.' }}
-                                            </span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <em>No job titles</em>
-                            @endif
-                        </td>
-                        <td>
-                            <div class="d-flex gap-2">
-                                <a href="{{ route('departments.edit', $department->id) }}" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-                                <form action="{{ route('departments.destroy', $department->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-outline-danger btn-sm">
-                                        <i class="bi bi-trash3"></i> Delete
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="text-center">No departments found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+          </div>
+        </div>
+      </div>
+    @empty
+      <div class="col-12 text-center text-muted py-5">
+        <i class="bi bi-info-circle fs-1 mb-2"></i>
+        <p>No departments found.</p>
+      </div>
+    @endforelse
+  </div>
+</div>
 @endsection

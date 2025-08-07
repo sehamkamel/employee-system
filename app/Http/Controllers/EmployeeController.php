@@ -19,10 +19,12 @@ class EmployeeController extends Controller
 
     // Show the form to create a new employee
     public function create()
-    {
-        $departments = Department::with('jobTitles')->get();
-        return view('employees.create', compact('departments'));
-    }
+{
+    $departments = Department::all();
+    // لا تجيب كل الموظفين هنا
+    return view('employees.create', compact('departments'));
+}
+
 
     // Store a new employee in the database
     public function store(Request $request)
