@@ -62,6 +62,16 @@
                 <textarea name="address" class="form-control">{{ old('address', $employee->address) }}</textarea>
             </div>
         </div>
+        <div class="mb-3">
+    <label for="password" class="form-label">New Password (leave blank to keep current)</label>
+    <input type="password" name="password" class="form-control">
+</div>
+
+<div class="mb-3">
+    <label for="password_confirmation" class="form-label">Confirm New Password</label>
+    <input type="password" name="password_confirmation" class="form-control">
+</div>
+
 
         <button type="submit" class="btn btn-primary">Update</button>
         <a href="{{ route('employees.index') }}" class="btn btn-secondary">Cancel</a>
