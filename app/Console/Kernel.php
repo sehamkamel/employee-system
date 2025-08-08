@@ -12,7 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+  // Schedule it every day at 10:01 AM (after check-in ends)
+    $schedule->command('attendance:mark-absent')->dailyAt('10:01');
+
+
     }
 
     /**
