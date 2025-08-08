@@ -37,7 +37,6 @@ public function index()
 }
 
 
-
 public function checkIn()
     {
         $user = Auth::user();
@@ -65,7 +64,7 @@ public function checkIn()
         $checkInTime = $now->format('H:i');
 
         // تحديد الحالة حسب الوقت
-        $startTime = Carbon::createFromTime(6, 30); // 8:30 AM
+        $startTime = Carbon::createFromTime(6, 30); // 6:30 AM
         $onTimeEnd = Carbon::createFromTime(9, 0);  // 9:00 AM
         $lateEnd = Carbon::createFromTime(10, 0);   // 10:00 AM
 
