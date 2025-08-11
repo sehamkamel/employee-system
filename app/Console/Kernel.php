@@ -10,13 +10,15 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule): void
-    {
-  // Schedule it every day at 10:01 AM (after check-in ends)
-    $schedule->command('attendance:mark-absent')->dailyAt('10:01');
+protected function schedule(Schedule $schedule)
+{
+    $schedule->command('attendance:mark-absent')
+        ->dailyAt('11:01')
+        ->timezone('Africa/Cairo')
+        ->withoutOverlapping()
+        ->appendOutputTo(storage_path('logs/attendance-schedule.log'));
+}
 
-
-    }
 
     /**
      * Register the commands for the application.

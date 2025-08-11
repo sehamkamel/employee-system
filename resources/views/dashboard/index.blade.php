@@ -1,124 +1,98 @@
 @extends('layouts.app')
+   @section('content')
 
-@section('content')
-<div class="container-fluid">
-    <!-- Page Title -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <h1 class="text-dark">Dashboard</h1>
-        </div>
+<div class="container py-3">
+      <h2 class="mb-3 ">Dashboard Overview</h2>
+   
+      
+    @php
+    $cards = [
+        [
+            'label' => 'Total Users',
+            'icon' => 'fas fa-users',
+            'count' => $usersCount,
+            'bg_gradient' => 'background: linear-gradient(135deg, #1e3c72 0%, #99f2c8  100%);',
+            'icon_color' => '#cbd5e1' // لون فاتح كحلي
+        ],
+        [
+            'label' => 'Total Employees',
+            'icon' => 'fas fa-user-tie',
+            'count' => $employeesCount,
+            'bg_gradient' => 'background: linear-gradient(135deg, #1e3c72 0%, #99f2c8  100%);',
+            'icon_color' => '#a8dadc'
+        ],
+        [
+            'label' => 'Departments',
+            'icon' => 'fas fa-building',
+            'count' => $departmentsCount,
+            'bg_gradient' => 'background: linear-gradient(135deg, #1e3c72 0%, #99f2c8 100%);',
+            'icon_color' => '#f1faee'
+        ],
+        [
+            'label' => 'Job Titles',
+            'icon' => 'fas fa-id-badge',
+            'count' => $jobTitlesCount,
+            'bg_gradient' => 'background: linear-gradient(135deg, #1e3c72 0%, #99f2c8 100%);',
+            'icon_color' => '#264653'
+        ],
+    ];
+    @endphp
+
+    <div class="row g-4 mb-5">
+        @foreach ($cards as $card)
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="card shadow rounded-5 text-white" style="min-height: 180px; {{ $card['bg_gradient'] }} border: none;">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="{{ $card['icon'] }} fa-4x me-4" style="color: {{ $card['icon_color'] }}"></i>
+                        <div>
+                            <h2 class="mb-2 fw-bold" style="font-size: 3rem;">{{ $card['count'] }}</h2>
+                            <p class="mb-0 fs-5 fw-semibold">{{ $card['label'] }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 
-    <!-- Info Boxes -->
-    <div class="row">
-        <!-- Users Count -->
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>{{ $usersCount }}</h3>
-                    <p>Total Users</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-users"></i>
-                </div>
-            </div>
-        </div>
+    {{-- ApexCharts Bar Chart --}}
+    <h2 class="mb-4">System Data Chart</h2>
+    <div id="chart"></div>
 
-        <!-- Employees Count -->
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>{{ $employeesCount }}</h3>
-                    <p>Total Employees</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-user-tie"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Departments Count -->
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>{{ $departmentsCount }}</h3>
-                    <p>Departments</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-building"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Job Titles Count -->
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>{{ $jobTitlesCount }}</h3>
-                    <p>Job Titles</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-id-badge"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Row -->
-    <div class="row">
-        <!-- Pie Chart Example -->
-        <div class="col-md-6">
-            <div class="card card-primary">
-                <div class="card-header">
-                    <h3 class="card-title">Employees by Department</h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="departmentChart" style="height:300px;"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bar Chart Example -->
-        <div class="col-md-6">
-            <div class="card card-info">
-                <div class="card-header">
-                    <h3 class="card-title">Monthly Hires</h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="hiresChart" style="height:300px;"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
-@endsection
 
-@section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{-- تحميل مكتبة ApexCharts --}}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
 <script>
-    // Dummy data for departments chart
-    const departmentChart = new Chart(document.getElementById('departmentChart'), {
-        type: 'pie',
-        data: {
-            labels: ['IT', 'HR', 'Sales', 'Marketing'],
-            datasets: [{
-                data: [10, 5, 7, 3],
-                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545'],
-            }]
-        }
-    });
+document.addEventListener('DOMContentLoaded', function () {
+    var options = {
+        chart: {
+            type: 'bar',
+            height: 350,
+            toolbar: { show: false }
+        },
+        series: [{
+            name: 'Count',
+            data: [{{ $usersCount }}, {{ $employeesCount }}, {{ $departmentsCount }}, {{ $jobTitlesCount }}]
+        }],
+        xaxis: {
+            categories: ['Users', 'Employees', 'Departments', 'Job Titles'],
+            labels: {
+                style: { fontSize: '14px', fontWeight: 'bold', colors: ['#1e3c72', '#16222a', '#283e51', '#1f4037'] }
+            }
+        },
+        colors: ['#1e3c72', '#16222a', '#283e51', '#1f4037'],
+        dataLabels: { enabled: true },
+        plotOptions: { bar: { borderRadius: 6 } }
+    };
 
-    // Dummy data for hires chart
-    const hiresChart = new Chart(document.getElementById('hiresChart'), {
-        type: 'bar',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-            datasets: [{
-                label: 'Hires',
-                data: [2, 4, 3, 5],
-                backgroundColor: '#17a2b8'
-            }]
-        }
-    });
+    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+});
 </script>
 @endsection
+
+
+
+
+
