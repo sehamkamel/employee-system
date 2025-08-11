@@ -21,6 +21,10 @@ class Employee extends Model
         'salary',
         'address',
     ];
+    
+    protected $casts = [
+        'hired_at' => 'datetime',
+    ];
 
     /**
      * Relationship with the User model
@@ -30,12 +34,33 @@ class Employee extends Model
       return $this->belongsTo(User::class);
     }
 
+
+        /**
+     * Relationship with the Department model
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department');
+    }
+
+
     /**
      * Relationship with the Attendance model
      */
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
+    }
+
+       protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($employee) {
+            if ($employee->user) {
+                $employee->user->delete();
+            }
+        });
     }
 }
 

@@ -1,13 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Employee Management</title>
   <!-- AdminLTE CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" />
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" />
+  <style>
+    body.dark-mode {
+      background-color: #121212 !important;
+      color: #e0e0e0 !important;
+    }
+    body.dark-mode .main-header,
+    body.dark-mode .main-sidebar,
+    body.dark-mode .content-wrapper,
+    body.dark-mode .main-footer {
+      background-color: #1e1e1e !important;
+      color: #e0e0e0 !important;
+    }
+    body.dark-mode .nav-link,
+    body.dark-mode .brand-link,
+    body.dark-mode .btn-outline-light {
+      color: #ccc !important;
+    }
+    body.dark-mode .btn-outline-light:hover {
+      background-color: #444 !important;
+      color: #fff !important;
+    }
+  </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -16,7 +38,7 @@
   <nav class="main-header navbar navbar-expand navbar-dark bg-navy">
     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
 
-    <div class="container-fluid">
+    <div class="container-fluid d-flex align-items-center">
       <ul class="navbar-nav">
         <li class="nav-item">
           @auth
@@ -26,6 +48,11 @@
           @endauth
         </li>
       </ul>
+
+      <!-- Dark Mode Toggle Button -->
+      <button id="darkModeToggle" class="btn btn-outline-light ml-auto me-3" type="button" style="white-space: nowrap;">
+        🌙 Dark Mode
+      </button>
 
       @auth
         <ul class="navbar-nav ms-auto">
@@ -161,27 +188,22 @@
     </div>
 
     <section class="content">
-    <div class="container-fluid">
+      <div class="container-fluid">
 
         {{-- Flash Message --}}
         @if(session('success'))
-            <div id="flash-message" class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+          <div id="flash-message" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
         @endif
-
-      
 
         @yield('content')
 
-    </div>
-</section>
-
-
-   
+      </div>
+    </section>
   </div>
 
   <!-- Footer -->
@@ -196,18 +218,50 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // يخلي الرسالة تختفي بعد 3 ثواني
-    setTimeout(function () {
-        const flash = document.getElementById('flash-message');
-        if (flash) {
-            flash.style.transition = 'opacity 0.5s ease';
-            flash.style.opacity = '0';
-            setTimeout(() => flash.remove(), 500); // نشيلها نهائيًا
-        }
-    }, 3000); // 3 ثواني
-</script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
+
+<script>
+  // يخلي الرسالة تختفي بعد 3 ثواني
+  setTimeout(function () {
+    const flash = document.getElementById('flash-message');
+    if (flash) {
+      flash.style.transition = 'opacity 0.5s ease';
+      flash.style.opacity = '0';
+      setTimeout(() => flash.remove(), 500); // نشيلها نهائيًا
+    }
+  }, 3000);
+
+  // Dark Mode Toggle logic
+  const toggleBtn = document.getElementById('darkModeToggle');
+  const body = document.body;
+
+  function applyDarkMode(enabled) {
+    if (enabled) {
+      body.classList.add('dark-mode');
+      toggleBtn.textContent = '☀️ Light Mode';
+    } else {
+      body.classList.remove('dark-mode');
+      toggleBtn.textContent = '🌙 Dark Mode';
+    }
+  }
+
+  // تفعيل وضع الداكن بناء على localStorage
+  if(localStorage.getItem('darkMode') === 'enabled') {
+    applyDarkMode(true);
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    const enabled = body.classList.contains('dark-mode');
+    if (enabled) {
+      applyDarkMode(false);
+      localStorage.setItem('darkMode', 'disabled');
+    } else {
+      applyDarkMode(true);
+      localStorage.setItem('darkMode', 'enabled');
+    }
+  });
+</script>
 
 </body>
 </html>

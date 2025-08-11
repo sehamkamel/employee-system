@@ -6,6 +6,7 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Department;
 
 
 
@@ -21,48 +22,57 @@ class EmployeeController extends Controller
 
     // عرض صفحة إنشاء موظف جديد
     public function create()
-    {
-        return view('employees.create');
-    }
+{
+    // جلب الأقسام مع الوظائف، وتحويلهم لمصفوفة بسيطة لتسهيل ال json
+    $departments = Department::with('jobTitles')->get()->map(function($d) {
+        return [
+            'id' => $d->id,
+            'name' => $d->name,
+            'job_titles' => $d->jobTitles->map(function($j) {
+                return ['id' => $j->id, 'name' => $j->name];
+            })->toArray(),
+        ];
+    });
 
-    // حفظ موظف جديد في قاعدة البيانات
+    return view('employees.create', compact('departments'));
+}
+
 public function store(Request $request)
 {
-    $request->validate([
-        'name' => 'required|string',
-        'email' => 'required|email|unique:employees,email|unique:users,email',
-        'phone' => 'required|string',
-        'department' => 'required|string',
-        'job_title' => 'nullable|string',
-        'hired_at' => 'nullable|date',
-        'salary' => 'nullable|numeric',
-        'address' => 'nullable|string',
-        'password' => 'required|string|min:6|confirmed',
+    $validated = $request->validate([
+        'name'       => 'required|string|max:255',
+        'email'      => 'required|email|unique:users,email',
+        'phone'      => 'required|string|max:20',
+        'department' => 'required|string|max:255',    // نص (اسم القسم)
+        'job_title'  => 'required|string|max:255',    // نص (اسم الوظيفة)
+        'hired_at'   => 'nullable|date',
+        'salary'     => 'nullable|numeric',
+        'address'    => 'nullable|string|max:255',
+        'password'   => 'required|string|min:6|confirmed',
     ]);
 
-    // إنشاء حساب في جدول users أولًا
+    // Create user account first
     $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => 'employee',
+        'name'     => $validated['name'],
+        'email'    => $validated['email'],
+        'password' => Hash::make($validated['password']),
+        'role'     => 'employee',
     ]);
 
-    // إضافة الموظف وربطه بالمستخدم
-    $employee = Employee::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'phone' => $request->phone,
-        'department' => $request->department,
-        'job_title' => $request->job_title,
-        'hired_at' => $request->hired_at,
-        'salary' => $request->salary,
-        'address' => $request->address,
-        'user_id' => $user->id, // الربط بين الموظف والمستخدم
+    // Create employee record (store department & job_title as text)
+    Employee::create([
+        'name'      => $validated['name'],
+        'email'     => $validated['email'],
+        'phone'     => $validated['phone'],
+        'department'=> $validated['department'],
+        'job_title' => $validated['job_title'],
+        'hired_at'  => $validated['hired_at'] ?? null,
+        'salary'    => $validated['salary'] ?? null,
+        'address'   => $validated['address'] ?? null,
+        'user_id'   => $user->id,
     ]);
 
-    return redirect()->route('employees.index')->with('success', 'Employee created successfully');
-}
+    return redirect()->route('employees.index')->with('success', 'Employee created successfully.');}
 
 
 
@@ -75,7 +85,9 @@ public function store(Request $request)
     // عرض صفحة التعديل
     public function edit(Employee $employee)
     {
-        return view('employees.edit', compact('employee'));
+           $departments = Department::with('jobTitles')->get();
+
+    return view('employees.edit', compact('employee', 'departments'));
     }
 
     // تحديث بيانات موظف
@@ -116,12 +128,18 @@ public function update(Request $request, Employee $employee)
 
 
     // حذف موظف
-    public function destroy(Employee $employee)
-    {
-        $employee->delete();
-
-        return redirect()->route('employees.index')
-                         ->with('success', 'Employee deleted successfully.');
+  public function destroy(Employee $employee)
+{
+    // لو الموظف مرتبط بـ user
+    if ($employee->user) {
+        $employee->user->delete();  // حذف المستخدم أولاً
+    } else {
+        $employee->delete(); // لو ماعندوش user (نادر بس ممكن يحصل)، نحذف الموظف فقط
     }
+
+    return redirect()->route('employees.index')
+                     ->with('success', 'Employee and user deleted successfully.');
+}
+
 }
 

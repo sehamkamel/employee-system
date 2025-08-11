@@ -3,26 +3,19 @@
 @section('content')
 <div class="container">
     <h2 class="mb-4">Attendance Page</h2>
-    @if (session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
 
-@if (session('warning'))
-    <div class="alert alert-warning">
-        {{ session('warning') }}
-    </div>
-@endif
+    {{-- عرض رسائل الفلاش --}}
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
-@if (session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
-@endif
-
-
-
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
 
     <div class="card p-4 mb-4">
         <form method="POST" action="{{ route('attendance.checkin') }}">
@@ -39,4 +32,5 @@
     </div>
 </div>
 @endsection
+
 
