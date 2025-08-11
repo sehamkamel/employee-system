@@ -6,12 +6,31 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\LeaveRequestController; // إضافة الكنترولر الجديد
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// بعد تسجيل الدخول فقط
+// ====== طلبات الإجازة ======
+// الموظفين: إنشاء طلب إجازة
+Route::middleware(['role:employee'])->group(function () {
+    Route::get('leave-requests/create', [LeaveRequestController::class, 'create'])->name('leave-requests.create');
+    Route::post('leave-requests', [LeaveRequestController::class, 'store'])->name('leave-requests.store');
+    Route::delete('leave-requests/{id}', [LeaveRequestController::class, 'destroy'])->name('leave-requests.destroy');
+});
+
+// الموظفين + HR: عرض الطلبات
+Route::middleware(['role:employee,hr'])->group(function () {
+    Route::get('leave-requests', [LeaveRequestController::class, 'index'])->name('leave-requests.index');
+});
+
+// HR: تحديث حالة الإجازة
+Route::middleware(['role:hr'])->group(function () {
+    Route::patch('/leave-requests/{id}/status/{status}', [LeaveRequestController::class, 'updateStatus'])
+        ->name('leave-requests.updateStatus');
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // متاح للجميع بعد تسجيل الدخول
@@ -40,6 +59,4 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
-
-
 

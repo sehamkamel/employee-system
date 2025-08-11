@@ -29,6 +29,12 @@ class Employee extends Model
     /**
      * Relationship with the User model
      */
+   public function leaveRequests()
+{
+    return $this->hasMany(LeaveRequest::class);
+}
+
+
     public function user()
     {
       return $this->belongsTo(User::class);
