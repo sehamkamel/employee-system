@@ -18,7 +18,31 @@
         </div>
     </form>
 
-    <table class="table table-bordered table-hover align-middle">
+  
+   <style>
+    /* منع تكسير الكلام في الجدول */
+    .table td, .table th {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    /* تصغير حجم النص في الجدول */
+    .table td {
+        font-size: 14px;
+    }
+
+    /* تحسين الأزرار */
+    .btn {
+        transition: all 0.2s ease-in-out;
+    }
+    .btn:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+</style>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
         <thead class="table-light">
             <tr>
                 <th>Employee</th>
@@ -38,19 +62,22 @@
     <td>{{ $attendance?->date ?? '-' }}</td>
     <td>{{ $attendance?->check_in ?? '-' }}</td>
     <td>{{ $attendance?->check_out ?? '-' }}</td>
-    <td>
-        @if ($attendance)
-            @if ($attendance->status == 'on-time')
-                <span class="badge bg-success">On Time</span>
-            @elseif ($attendance->status == 'late')
-                <span class="badge bg-warning text-dark">Late</span>
-            @else
-                <span class="badge bg-secondary">{{ ucfirst($attendance->status) }}</span>
-            @endif
+  <td>
+    @if ($attendance)
+        @if ($attendance->status == 'ontime')
+            <span class="badge bg-success">On Time</span>
+        @elseif ($attendance->status == 'late')
+            <span class="badge bg-warning text-dark">Late</span>
+        @elseif ($attendance->status == 'leave')
+            <span class="badge bg-primary">On Leave</span>
         @else
-            <span class="badge bg-danger">Absent</span>
+            <span class="badge bg-secondary">{{ ucfirst($attendance->status) }}</span>
         @endif
-    </td>
+    @else
+        <span class="badge bg-danger">Absent</span>
+    @endif
+</td>
+
 </tr>
 
             @endforeach

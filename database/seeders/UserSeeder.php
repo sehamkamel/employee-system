@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
             ]
         );
 
+
         User::firstOrCreate(
             ['email' => 'hr@example.com'],
             [
@@ -27,6 +28,7 @@ class UserSeeder extends Seeder
                 'role' => 'hr',
             ]
         );
+
     }
 }
 
