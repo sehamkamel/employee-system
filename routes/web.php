@@ -20,16 +20,17 @@ Route::middleware(['role:employee'])->group(function () {
     Route::delete('leave-requests/{id}', [LeaveRequestController::class, 'destroy'])->name('leave-requests.destroy');
 });
 
-// الموظفين + HR: عرض الطلبات
-Route::middleware(['role:employee,hr'])->group(function () {
+// الموظفين + HR + Admin: عرض الطلبات
+Route::middleware(['role:employee,hr,admin'])->group(function () {
     Route::get('leave-requests', [LeaveRequestController::class, 'index'])->name('leave-requests.index');
 });
 
-// HR: تحديث حالة الإجازة
-Route::middleware(['role:hr'])->group(function () {
+// HR + Admin: تحديث حالة الإجازة
+Route::middleware(['role:hr,admin'])->group(function () {
     Route::patch('/leave-requests/{id}/status/{status}', [LeaveRequestController::class, 'updateStatus'])
         ->name('leave-requests.updateStatus');
 });
+
 
 Route::middleware(['auth'])->group(function () {
 

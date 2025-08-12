@@ -17,7 +17,7 @@ return new class extends Migration
         $table->date('start_date');
         $table->date('end_date');
         $table->text('reason')->nullable();
-        $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
+        $table->enum('status', ['Pending', 'Approved', 'Rejected','leave'])->default('Pending');
         $table->timestamps();
         $table->string('leave_type');
 

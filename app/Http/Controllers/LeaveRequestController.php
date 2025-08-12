@@ -11,19 +11,26 @@ class LeaveRequestController extends Controller
     /**
      * عرض الطلبات
      */
-    public function index()
-    {
-        if (auth()->user()->role === 'hr') {
-            // HR يشوف كل الطلبات
-            $leaveRequests = LeaveRequest::with('employee')->latest()->get();
-        } else {
-            // الموظف يشوف طلباته فقط
-            $employee = auth()->user()->employee;
-            $leaveRequests = $employee->leaveRequests()->latest()->get();
-        }
+public function index()
+{
+    $role = auth()->user()->role;
 
-        return view('leave_requests.index', compact('leaveRequests'));
+    if ($role === 'hr' || $role === 'admin') {
+        // الـ HR والـ Admin يشوفوا كل طلبات الإجازة
+        $leaveRequests = LeaveRequest::with('employee')->latest()->get();
+    } elseif ($role === 'employee') {
+        $employee = auth()->user()->employee;
+        if (!$employee) {
+            abort(403, 'Employee record not found for this user.');
+        }
+        $leaveRequests = $employee->leaveRequests()->latest()->get();
+    } else {
+        abort(403, 'Access denied.');
     }
+
+    return view('leave_requests.index', compact('leaveRequests'));
+}
+
 
     /**
      * فورم إنشاء طلب إجازة للموظف
@@ -36,29 +43,52 @@ class LeaveRequestController extends Controller
     /**
      * حفظ طلب الإجازة
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'leave_type' => 'required|string|max:255',
-            'start_date' => 'required|date|after_or_equal:today',
-            'end_date'   => 'required|date|after_or_equal:start_date',
-            'reason'     => 'nullable|string',
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'leave_type' => 'required|string|max:255',
+        'start_date' => 'required|date|after_or_equal:today',
+        'end_date'   => 'required|date|after_or_equal:start_date',
+        'reason'     => 'nullable|string',
+    ]);
 
-        $employee = Auth::user()->employee;
+    $employee = Auth::user()->employee;
 
-        LeaveRequest::create([
-            'employee_id' => $employee->id,
-            'leave_type'  => $request->leave_type,
-            'start_date'  => $request->start_date,
-            'end_date'    => $request->end_date,
-            'reason'      => $request->reason,
-            'status'      => 'Pending',
-        ]);
+    // تحقق إذا في إجازة متداخلة بنفس الفترة و الحالة approved أو Pending
+    $overlappingLeave = LeaveRequest::where('employee_id', $employee->id)
+        ->where(function($query) {
+            $query->where('status', 'approved')
+                  ->orWhere('status', 'Pending');
+        })
+        ->where(function ($query) use ($request) {
+            $query->whereBetween('start_date', [$request->start_date, $request->end_date])
+                  ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                  ->orWhere(function ($query) use ($request) {
+                      $query->where('start_date', '<=', $request->start_date)
+                            ->where('end_date', '>=', $request->end_date);
+                  });
+        })
+        ->exists();
 
-        return redirect()->route('leave-requests.index')
-                         ->with('success', 'Leave request submitted successfully.');
+    if ($overlappingLeave) {
+        return redirect()->back()
+            ->withInput()
+            ->withErrors(['error' => 'You already have a leave request overlapping with these dates.']);
     }
+
+    LeaveRequest::create([
+        'employee_id' => $employee->id,
+        'leave_type'  => $request->leave_type,
+        'start_date'  => $request->start_date,
+        'end_date'    => $request->end_date,
+        'reason'      => $request->reason,
+        'status'      => 'Pending',
+    ]);
+
+    return redirect()->route('leave-requests.index')
+                     ->with('success', 'Leave request submitted successfully.');
+}
+
 
     /**
      * حذف طلب الإجازة

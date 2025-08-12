@@ -9,8 +9,9 @@
         </div>
 
         <div class="card-body p-4">
-            @if(session('error'))
-                <div class="alert alert-danger shadow-sm">{{ session('error') }}</div>
+            {{-- عرض رسالة الخطأ العامة (مثلاً رسالة التداخل) --}}
+            @if($errors->has('error'))
+                <div class="alert alert-danger shadow-sm">{{ $errors->first('error') }}</div>
             @endif
 
             <form action="{{ route('leave-requests.store') }}" method="POST">
@@ -18,14 +19,17 @@
 
                 <div class="mb-3">
                     <label for="leave_type" class="form-label fw-bold">Leave Type</label>
-                    <input
-                        type="text"
-                        class="form-control rounded-3 @error('leave_type') is-invalid @enderror"
+                    <select
+                        class="form-select rounded-3 @error('leave_type') is-invalid @enderror"
                         id="leave_type"
                         name="leave_type"
-                        value="{{ old('leave_type') }}"
-                        placeholder="Enter leave type"
                     >
+                        <option value="" disabled {{ old('leave_type') ? '' : 'selected' }}>Select leave type</option>
+                        <option value="Annual" {{ old('leave_type') == 'Annual' ? 'selected' : '' }}>Annual Leave</option>
+                        <option value="Sick" {{ old('leave_type') == 'Sick' ? 'selected' : '' }}>Sick Leave</option>
+                        <option value="Casual" {{ old('leave_type') == 'Casual' ? 'selected' : '' }}>Casual Leave</option>
+                        <option value="Maternity" {{ old('leave_type') == 'Maternity' ? 'selected' : '' }}>Maternity Leave</option>
+                    </select>
                     @error('leave_type')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

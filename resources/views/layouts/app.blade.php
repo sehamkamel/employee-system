@@ -74,106 +74,108 @@
     <a href="#" class="brand-link">
       <span class="brand-text font-weight-light">Admin Dashboard</span>
     </a>
+<div class="sidebar">
+  @auth
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
 
-    <div class="sidebar">
-      @auth
-        <nav class="mt-2">
-          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+        {{-- Dashboard - للجميع --}}
+        <li class="nav-item">
+          <a href="{{ route('dashboard') }}" class="nav-link">
+            <i class="nav-icon fas fa-home"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
 
-            {{-- Dashboard - للجميع --}}
-            <li class="nav-item">
-              <a href="{{ route('dashboard') }}" class="nav-link">
-                <i class="nav-icon fas fa-home"></i>
-                <p>Dashboard</p>
+        {{-- Admin & HR --}}
+        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'hr')
+          {{-- Employees --}}
+          <li class="nav-item">
+            @if(Route::has('employees.index'))
+              <a href="{{ route('employees.index') }}" class="nav-link">
+                <i class="nav-icon fas fa-users"></i>
+                <p>Employees</p>
               </a>
-            </li>
-
-            {{-- Admin & HR --}}
-            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'hr')
-              {{-- Employees --}}
-              <li class="nav-item">
-                @if(Route::has('employees.index'))
-                  <a href="{{ route('employees.index') }}" class="nav-link">
-                    <i class="nav-icon fas fa-users"></i>
-                    <p>Employees</p>
-                  </a>
-                @else
-                  <a href="#" class="nav-link disabled">
-                    <i class="nav-icon fas fa-users"></i>
-                    <p>Employees</p>
-                  </a>
-                @endif
-              </li>
-
-              {{-- Departments --}}
-              <li class="nav-item">
-                @if(Route::has('departments.index'))
-                  <a href="{{ route('departments.index') }}" class="nav-link">
-                    <i class="nav-icon fas fa-building"></i>
-                    <p>Departments</p>
-                  </a>
-                @else
-                  <a href="#" class="nav-link disabled">
-                    <i class="nav-icon fas fa-building"></i>
-                    <p>Departments </p>
-                  </a>
-                @endif
-              </li>
-
-              {{-- Attendance --}}
-              <li class="nav-item">
-                @if(Route::has('admin.attendance.index'))
-                  <a href="{{ route('admin.attendance.index') }}" class="nav-link">
-                    <i class="nav-icon fas fa-calendar-check"></i>
-                    <p>Attendance</p>
-                  </a>
-                @else
-                  <a href="#" class="nav-link disabled">
-                    <i class="nav-icon fas fa-calendar-check"></i>
-                    <p>Attendance</p>
-                  </a>
-                @endif
-              </li>
+            @else
+              <a href="#" class="nav-link disabled">
+                <i class="nav-icon fas fa-users"></i>
+                <p>Employees</p>
+              </a>
             @endif
+          </li>
 
-            {{-- Employee فقط --}}
-            @if(auth()->user()->role === 'employee')
-              {{-- Attendance --}}
-              <li class="nav-item">
-                @if(Route::has('attendance.index'))
-                  <a href="{{ route('attendance.index') }}" class="nav-link">
-                    <i class="nav-icon fas fa-calendar-check"></i>
-                    <p>Attendance</p>
-                  </a>
-                @else
-                  <a href="#" class="nav-link disabled">
-                    <i class="nav-icon fas fa-calendar-check"></i>
-                    <p>Attendance </p>
-                  </a>
-                @endif
-              </li>
-
-              {{-- Leaves --}}
-              <li class="nav-item">
-                @if(Route::has('leaves.index'))
-                  <a href="{{ route('leaves.index') }}" class="nav-link">
-                    <i class="nav-icon fas fa-calendar-minus"></i>
-                    <p>Leaves</p>
-                  </a>
-                @else
-                  <a href="#" class="nav-link disabled">
-                    <i class="nav-icon fas fa-calendar-minus"></i>
-                    <p>Leaves (coming soon)</p>
-                  </a>
-                @endif
-              </li>
+          {{-- Departments --}}
+          <li class="nav-item">
+            @if(Route::has('departments.index'))
+              <a href="{{ route('departments.index') }}" class="nav-link">
+                <i class="nav-icon fas fa-building"></i>
+                <p>Departments</p>
+              </a>
+            @else
+              <a href="#" class="nav-link disabled">
+                <i class="nav-icon fas fa-building"></i>
+                <p>Departments </p>
+              </a>
             @endif
+          </li>
 
-          </ul>
-        </nav>
-      @endauth
-    </div>
-  </aside>
+          {{-- Attendance --}}
+          <li class="nav-item">
+            @if(Route::has('admin.attendance.index'))
+              <a href="{{ route('admin.attendance.index') }}" class="nav-link">
+                <i class="nav-icon fas fa-calendar-check"></i>
+                <p>Attendance</p>
+              </a>
+            @else
+              <a href="#" class="nav-link disabled">
+                <i class="nav-icon fas fa-calendar-check"></i>
+                <p>Attendance</p>
+              </a>
+            @endif
+          </li>
+        @endif
+
+        {{-- Employee فقط --}}
+        @if(auth()->user()->role === 'employee')
+          {{-- Attendance --}}
+          <li class="nav-item">
+            @if(Route::has('attendance.index'))
+              <a href="{{ route('attendance.index') }}" class="nav-link">
+                <i class="nav-icon fas fa-calendar-check"></i>
+                <p>Attendance</p>
+              </a>
+            @else
+              <a href="#" class="nav-link disabled">
+                <i class="nav-icon fas fa-calendar-check"></i>
+                <p>Attendance </p>
+              </a>
+            @endif
+          </li>
+        @endif
+
+        {{-- Leave Requests للجميع (admin, hr, employee) --}}
+        @if(in_array(auth()->user()->role, ['admin', 'hr', 'employee']))
+          <li class="nav-item">
+            @if(Route::has('leave-requests.index'))
+              <a href="{{ route('leave-requests.index') }}" class="nav-link">
+                <i class="nav-icon fas fa-calendar-minus"></i>
+                <p>Leaves</p>
+              </a>
+            @else
+              <a href="#" class="nav-link disabled">
+                <i class="nav-icon fas fa-calendar-minus"></i>
+                <p>Leaves</p>
+              </a>
+            @endif
+          </li>
+        @endif
+
+      </ul>
+    </nav>
+  @endauth
+</div>
+</aside>
+
 
   <!-- Content Wrapper -->
   <div class="content-wrapper">
