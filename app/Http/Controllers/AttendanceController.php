@@ -212,39 +212,53 @@ public function index(Request $request)
 }
 
 
-    public function checkOut()
-    {
-        $timezone = 'Africa/Cairo';
-        $user = Auth::user();
+public function checkOut()
+{
+    $timezone = 'Africa/Cairo';
+    $user = Auth::user();
 
-        if ($user->role !== 'employee') {
-            return redirect()->back()->with('error', 'Access denied.');
-        }
-
-        $today = Carbon::now($timezone)->toDateString();
-
-        $attendance = Attendance::where('employee_id', $user->employee->id)
-            ->whereDate('date', $today)
-            ->first();
-
-        if (!$attendance) {
-            return redirect()->back()->with('error', 'You have not checked in today.');
-        }
-
-        if (Carbon::parse($attendance->date, $timezone)->lt(Carbon::now($timezone)->startOfDay())) {
-            return redirect()->back()->with('error', 'You cannot modify past attendance records.');
-        }
-
-        if ($attendance->check_out !== null) {
-            return redirect()->back()->with('error', 'You have already checked out today.');
-        }
-
-        $attendance->update([
-            'check_out' => Carbon::now($timezone)->format('H:i'),
-        ]);
-
-        return redirect()->back()->with('success', 'Check-out recorded successfully.');
+    if ($user->role !== 'employee') {
+        return redirect()->back()->with('error', 'Access denied.');
     }
+
+    $today = Carbon::now($timezone)->toDateString();
+
+    $attendance = Attendance::where('employee_id', $user->employee->id)
+        ->whereDate('date', $today)
+        ->first();
+
+    if (!$attendance) {
+        return redirect()->back()->with('error', 'You have not checked in today.');
+    }
+
+    if (Carbon::parse($attendance->date, $timezone)->lt(Carbon::now($timezone)->startOfDay())) {
+        return redirect()->back()->with('error', 'You cannot modify past attendance records.');
+    }
+
+    if ($attendance->check_out !== null) {
+        return redirect()->back()->with('error', 'You have already checked out today.');
+    }
+
+    // التأكد من وجود وقت Check In
+    if (!$attendance->check_in) {
+        return redirect()->back()->with('error', 'You must check in before checking out.');
+    }
+
+    // التحقق من مرور 6 ساعات على الأقل من وقت Check In
+    $checkInTime = Carbon::parse($attendance->check_in, $timezone);
+    $hoursWorked = $checkInTime->diffInHours(Carbon::now($timezone));
+
+    if ($hoursWorked < 6) {
+        return redirect()->back()->with('error', 'You must work at least 6 hours before checking out.');
+    }
+
+    $attendance->update([
+        'check_out' => Carbon::now($timezone)->format('H:i'),
+    ]);
+
+    return redirect()->back()->with('success', 'Check-out recorded successfully.');
+}
+
 }
 
 
