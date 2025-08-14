@@ -14,11 +14,19 @@ use App\Models\Department;
 class EmployeeController extends Controller
 {
     // عرض كل الموظفين
-    public function index()
-    {
-        $employees = Employee::latest()->paginate(10);
-        return view('employees.index', compact('employees'));
-    }
+ public function index(Request $request)
+{
+    $search = $request->input('search');
+
+    $employees = Employee::when($search, function ($query, $search) {
+        return $query->where('name', 'LIKE', "%{$search}%");
+    })
+    ->latest()
+    ->paginate(10);
+
+    return view('employees.index', compact('employees', 'search'));
+}
+
 
     // عرض صفحة إنشاء موظف جديد
     public function create()

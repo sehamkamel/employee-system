@@ -29,6 +29,12 @@
 
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <a href="{{ route('employees.create') }}" class="btn btn-success">+ Add Employee</a>
+
+        {{-- بحث بالاسم --}}
+        <form method="GET" action="{{ route('employees.index') }}" class="d-flex" style="max-width: 300px;">
+            <input type="text" name="search" class="form-control me-2" placeholder="Search by name" value="{{ request('search') }}">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
     </div>
 
     <div class="table-responsive">
@@ -46,6 +52,7 @@
                     <th>Actions</th>
                 </tr>
             </thead>
+
             <tbody>
                 @forelse($employees as $index => $employee)
                     <tr>
