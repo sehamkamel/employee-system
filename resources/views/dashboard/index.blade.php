@@ -1,39 +1,34 @@
 @extends('layouts.app')
-   @section('content')
+@section('content')
 
 <div class="container py-3">
-      <h2 class="mb-3 ">Dashboard Overview</h2>
-   
-      
+    <h2 class="mb-3">Dashboard Overview</h2>
+
     @php
     $cards = [
         [
             'label' => 'Total Users',
             'icon' => 'fas fa-users',
             'count' => $usersCount,
-            'bg_gradient' => 'background: linear-gradient(135deg, #1e3c72 0%, #99f2c8  100%);',
-            'icon_color' => '#cbd5e1' // لون فاتح كحلي
+            'bg_color' => 'bg-primary',
         ],
         [
             'label' => 'Total Employees',
             'icon' => 'fas fa-user-tie',
             'count' => $employeesCount,
-            'bg_gradient' => 'background: linear-gradient(135deg, #1e3c72 0%, #99f2c8  100%);',
-            'icon_color' => '#a8dadc'
+            'bg_color' => 'bg-success',
         ],
         [
             'label' => 'Departments',
             'icon' => 'fas fa-building',
             'count' => $departmentsCount,
-            'bg_gradient' => 'background: linear-gradient(135deg, #1e3c72 0%, #99f2c8 100%);',
-            'icon_color' => '#f1faee'
+            'bg_color' => 'bg-warning',
         ],
         [
             'label' => 'Job Titles',
             'icon' => 'fas fa-id-badge',
             'count' => $jobTitlesCount,
-            'bg_gradient' => 'background: linear-gradient(135deg, #1e3c72 0%, #99f2c8 100%);',
-            'icon_color' => '#264653'
+            'bg_color' => 'bg-danger',
         ],
     ];
     @endphp
@@ -41,12 +36,12 @@
     <div class="row g-4 mb-5">
         @foreach ($cards as $card)
             <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="card shadow rounded-5 text-white" style="min-height: 180px; {{ $card['bg_gradient'] }} border: none;">
+                <div class="card text-white {{ $card['bg_color'] }} shadow-sm rounded-4" style="min-height: 160px; border: none;">
                     <div class="card-body d-flex align-items-center">
-                        <i class="{{ $card['icon'] }} fa-4x me-4" style="color: {{ $card['icon_color'] }}"></i>
+                        <i class="{{ $card['icon'] }} fa-3x me-4 opacity-75"></i>
                         <div>
-                            <h2 class="mb-2 fw-bold" style="font-size: 3rem;">{{ $card['count'] }}</h2>
-                            <p class="mb-0 fs-5 fw-semibold">{{ $card['label'] }}</p>
+                            <h2 class="mb-1 fw-bold">{{ $card['count'] }}</h2>
+                            <p class="mb-0 fw-semibold">{{ $card['label'] }}</p>
                         </div>
                     </div>
                 </div>
@@ -57,7 +52,6 @@
     {{-- ApexCharts Bar Chart --}}
     <h2 class="mb-4">System Data Chart</h2>
     <div id="chart"></div>
-
 </div>
 
 {{-- تحميل مكتبة ApexCharts --}}
@@ -78,10 +72,10 @@ document.addEventListener('DOMContentLoaded', function () {
         xaxis: {
             categories: ['Users', 'Employees', 'Departments', 'Job Titles'],
             labels: {
-                style: { fontSize: '14px', fontWeight: 'bold', colors: ['#1e3c72', '#16222a', '#283e51', '#1f4037'] }
+                style: { fontSize: '14px', fontWeight: '600', colors: ['#007bff', '#28a745', '#ffc107', '#dc3545'] }
             }
         },
-        colors: ['#1e3c72', '#16222a', '#283e51', '#1f4037'],
+        colors: ['#007bff', '#28a745', '#ffc107', '#dc3545'],
         dataLabels: { enabled: true },
         plotOptions: { bar: { borderRadius: 6 } }
     };
@@ -91,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endsection
+
 
 
 
